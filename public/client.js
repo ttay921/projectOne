@@ -1,49 +1,102 @@
+/* global ScrollMagic */
+/* global Chart */ 
+
+
 // client-side js
-// run by the browser each time your view template referencing it is loaded
+// run by the browser each time your view template is loaded
 
-console.log('hello world :o');
+console.log('just checking in');
 
-let dreams = [];
+document.addEventListener("DOMContentLoaded", function(event) {
+    console.log("DOM loaded <3"); 
+    
+  
+//scrollmagic 
+    console.log("ScrollMagic is", ScrollMagic); 
+      
+    var controller = new ScrollMagic.Controller({
+			globalSceneOptions: {
+				triggerHook: 'onLeave'
+			}
+		});
 
-// define variables that reference elements on our page
-const dreamsList = document.getElementById('dreams');
-const dreamsForm = document.forms[0];
-const dreamInput = dreamsForm.elements['dream'];
+		// get all slides
+		var slides = document.querySelectorAll("section.panel");
 
-// a helper function to call when our request for dreams is done
-const getDreamsListener = function() {
-  // parse our response to convert to JSON
-  dreams = JSON.parse(this.responseText);
+		// create scene for every slide 
+		for (var i=0; i<slides.length; i++) {
+			new ScrollMagic.Scene({
+        
+        //don't start immediately
+          offset: 50,
+					triggerElement: slides[i]
+				})
+				.setPin(slides[i])
+				.addTo(controller);
+		}
+  
+  
+  //chart 
+    var ctx = document.getElementById('myChart').getContext('2d');
+        console.log( "my chart is", myChart);
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Jean Gray', 'Mystique', 'Emma Frost'],
+            datasets: [{
+                label: '# of Comics',
+                data: [214, 186, 382],
+                backgroundColor: [
+                      'rgba(255, 99, 132, 0.2)',
+                      'rgba(54, 162, 235, 0.2)',
+                      'rgba(255, 206, 86, 0.2)',
+              
+                 ],
+                        }]
+              },
+          options: {
+            scales: {
+                  yAxes: [{
+                    ticks: {
+                      beginAtZero: true
+                    }
+                  }]
+            }
+          }
+    });
+  
+  //marvel api
+  
+      //get phoenix 
+    fetch('/jean-grey').then(resp => resp.json()).then((data) => {
+    
+    console.log('jean grey');
+      
+    var name = document.createElement('h1');
+    name.innerText = name;
+      
+    
+    
+    
+    });
+  
+  
+  
+  
+  
+  
+  fetch('mystique').then(resp => resp.json()).then((data) => {
+    
+    console.log('mystique');
+    
+    });
+  
+  fetch('/emma-frost').then(resp => resp.json()).then((data) => {
+    
+    console.log('emma frost');
+    
+    });
+});
 
-  // iterate through every dream and add it to our page
-  dreams.forEach( function(row) {
-    appendNewDream(row.dream);
-  });
-}
 
-// request the dreams from our app's sqlite database
-const dreamRequest = new XMLHttpRequest();
-dreamRequest.onload = getDreamsListener;
-dreamRequest.open('get', '/getDreams');
-dreamRequest.send();
 
-// a helper function that creates a list item for a given dream
-const appendNewDream = function(dream) {
-  const newListItem = document.createElement('li');
-  newListItem.innerHTML = dream;
-  dreamsList.appendChild(newListItem);
-}
-
-// listen for the form to be submitted and add a new dream when it is
-dreamsForm.onsubmit = function(event) {
-  // stop our form submission from refreshing the page
-  event.preventDefault();
-
-  // get dream value and add it to the list
-  dreams.push(dreamInput.value);
-  appendNewDream(dreamInput.value);
-
-  // reset form 
-  dreamInput.value = '';
-  dreamInput.focus();
-};
