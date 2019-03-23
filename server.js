@@ -2,10 +2,8 @@
 // where your node app starts
 
 // init project
-var express = require('express');
-var bodyParser = require('body-parser');
-var app = express();
-app.use(bodyParser.urlencoded({ extended: true }));
+const express = require('express');
+const app = express();
 
 // we've started you off with Express, 
 // but feel free to use whatever libs or frameworks you'd like through `package.json`.
@@ -13,49 +11,68 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // http://expressjs.com/en/starter/static-files.html
 app.use(express.static('public'));
 
-// init sqlite db
-var fs = require('fs');
-var dbFile = './.data/sqlite.db';
-var exists = fs.existsSync(dbFile);
-var sqlite3 = require('sqlite3').verbose();
-var db = new sqlite3.Database(dbFile);
-
-// if ./.data/sqlite.db does not exist, create it, otherwise print records to console
-db.serialize(function(){
-  if (!exists) {
-    db.run('CREATE TABLE Dreams (dream TEXT)');
-    console.log('New table Dreams created!');
-    
-    // insert default dreams
-    db.serialize(function() {
-      db.run('INSERT INTO Dreams (dream) VALUES ("Find and count some sheep"), ("Climb a really tall mountain"), ("Wash the dishes")');
-    });
-  }
-  else {
-    console.log('Database "Dreams" ready to go!');
-    db.each('SELECT * from Dreams', function(err, row) {
-      if ( row ) {
-        console.log('record:', row);
-      }
-    });
-  }
-});
-
 // http://expressjs.com/en/starter/basic-routing.html
 app.get('/', function(request, response) {
   response.sendFile(__dirname + '/views/index.html');
 });
 
-// endpoint to get all the dreams in the database
-// currently this is the only endpoint, ie. adding dreams won't update the database
-// read the sqlite3 module docs and try to add your own! https://www.npmjs.com/package/sqlite3
-app.get('/getDreams', function(request, response) {
-  db.all('SELECT * from Dreams', function(err, rows) {
-    response.send(JSON.stringify(rows));
-  });
+
+
+
+//marvel api 
+    //taken from marvel-api-npm
+        var api = require('marvel-api')
+        var marvel = api.createClient({
+          publicKey: process.env.PUBLIC_KEY, 
+          privateKey: process.env.PRIVATE_KEY
 });
 
+
+//character 1
+    //app.get portion taken from spotify-api work
+
+app.get('/mystique', function (request, response) {
+        marvel.characters.findByName('Mystique')
+          .then(
+        r => {response.send(r.data); 
+             })
+  .fail(console.error)
+  .done();
+});
+//jean grey
+app.get('/jean-grey', function (request, response) {
+        marvel.characters.findByName('Jean Grey')
+          .then(
+        r => {response.send(r.data); 
+             })
+  .fail(console.error)
+  .done();
+});
+
+//emma frost 
+
+
+app.get('/emma-frost', function (request, response) {
+        marvel.characters.findByName('Emma Frost')
+          .then(
+        r => {response.send(r.data); 
+             })
+  .fail(console.error)
+  .done();
+});
+
+
+
+
+
+
+
+
+
+
+
+
 // listen for requests :)
-var listener = app.listen(process.env.PORT, function() {
+const listener = app.listen(process.env.PORT, function() {
   console.log('Your app is listening on port ' + listener.address().port);
 });
